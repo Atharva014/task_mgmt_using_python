@@ -1,9 +1,32 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Dashboard from './pages/Dashboard';
+import { authService } from './services/authService';
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  return authService.isAuthenticated() ? children : <Navigate to="/login" />;
+};
 
 function App() {
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-900 text-white text-3xl font-bold">
-      Task Management App
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
   );
 }
 
