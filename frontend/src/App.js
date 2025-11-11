@@ -3,9 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import TaskList from './pages/TaskList';
+import CreateTask from './pages/CreateTask';
+import EditTask from './pages/EditTask';
+import Profile from './pages/Profile';
 import { authService } from './services/authService';
 
-// Protected Route Component
 const ProtectedRoute = ({ children }) => {
   return authService.isAuthenticated() ? children : <Navigate to="/login" />;
 };
@@ -21,6 +24,38 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <ProtectedRoute>
+              <TaskList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create-task"
+          element={
+            <ProtectedRoute>
+              <CreateTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-task/:id"
+          element={
+            <ProtectedRoute>
+              <EditTask />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />
