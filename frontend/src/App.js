@@ -7,6 +7,7 @@ import TaskList from './pages/TaskList';
 import CreateTask from './pages/CreateTask';
 import EditTask from './pages/EditTask';
 import Profile from './pages/Profile';
+import Team from './pages/Team';
 import { authService } from './services/authService';
 
 const ProtectedRoute = ({ children }) => {
@@ -56,6 +57,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/team"
+          element={
+            <ProtectedRoute>
+              <Team />
             </ProtectedRoute>
           }
         />

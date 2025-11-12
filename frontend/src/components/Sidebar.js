@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckSquare, Calendar, Plus, User, LogOut } from 'lucide-react';
+import { CheckSquare, Calendar, Plus, User, Users, LogOut } from 'lucide-react';
 import { authService } from '../services/authService';
 
 const Sidebar = () => {
@@ -16,6 +16,7 @@ const Sidebar = () => {
     { path: '/dashboard', icon: CheckSquare, label: 'Dashboard' },
     { path: '/tasks', icon: Calendar, label: 'My Tasks' },
     { path: '/create-task', icon: Plus, label: 'Create Task' },
+    { path: '/team', icon: Users, label: 'Team' },
     { path: '/profile', icon: User, label: 'Profile' },
   ];
 
