@@ -1,5 +1,7 @@
 version: '3.9'
+
 services:
+  # PostgreSQL Database
   db:
     image: postgres:15
     container_name: taskmgmt_db
@@ -12,6 +14,46 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - taskflow-network
+
+  # Django Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: taskmgmt_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=task_mgmt_db
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+    depends_on:
+      - db
+    networks:
+      - taskflow-network
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: taskmgmt_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - taskflow-network
 
 volumes:
   postgres_data:
+
+networks:
+  taskflow-network:
+    driver: bridge  
