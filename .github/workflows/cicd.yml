@@ -1,0 +1,47 @@
+name: CI-CD Pipeline
+on:
+    push:
+        branches:
+          - main
+jobs:
+    build:
+        name: Build Project
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@v4
+
+          - name: Inatlling AWS CLI
+            uses: aws-actions/configure-aws-cli@v4
+            with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: ap-south-1
+
+          - name: Installing Kubectl
+            run: |
+                curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                chmod +x kubectl
+                sudo mv kubectl /usr/local/bin/
+
+          - name: Install eksctl
+            run: |
+                curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz" | tar xz
+                sudo mv eksctl /usr/local/bin
+
+          - name: Install Trivy
+            run: |
+                sudo apt-get update
+                sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+                wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+                echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+                sudo apt-get update
+                sudo apt-get install -y trivy
+          - name: Install SonarScanner
+            run: |
+                sudo apt-get update
+                sudo apt-get install openjdk-11-jre -y
+                wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+                unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+                sudo mv sonar-scanner-5.0.1.3006-linux /usr/local/sonar-scanner
+                echo "export PATH=\$PATH:/usr/local/sonar-scanner/bin" >> $HOME/.bashrc
