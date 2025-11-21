@@ -37,11 +37,8 @@ jobs:
                 echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
                 sudo apt-get update
                 sudo apt-get install -y trivy
-          - name: Install SonarScanner
+
+          - name: Run Trivy Scan
             run: |
-                sudo apt-get update
-                sudo apt-get install openjdk-11-jre -y
-                wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-                unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-                sudo mv sonar-scanner-5.0.1.3006-linux /usr/local/sonar-scanner
-                echo "export PATH=\$PATH:/usr/local/sonar-scanner/bin" >> $HOME/.bashrc
+                pwd
+                trivy fs --exit-code 1 --severity HIGH,CRITICAL .
