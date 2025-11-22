@@ -48,4 +48,23 @@ jobs:
 
           - name: Build Frontend docker Image
             run: |
-                  docker build -t frontend-image:latest ./frontend        
+                  docker build -t frontend-image:latest ./frontend
+          - name: Login to ECR
+            id: login-ecr
+            uses: aws-actions/amazon-ecr-login@v2
+            
+          - name: Tag Backend Image
+            run: |
+                  docker tag backend-image:latest ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:latest
+
+          - name: Tag Frontend Image
+            run: |
+                  docker tag frontend-image:latest ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:latest
+
+          - name: Push Backend Image
+            run: |
+                  docker push ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:latest
+
+          - name: Push Frontend Image
+            run: |
+                  docker push ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:latest
