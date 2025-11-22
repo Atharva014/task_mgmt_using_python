@@ -48,7 +48,11 @@ jobs:
 
           - name: Build Frontend docker Image
             run: |
-                  docker build -t frontend-image:latest ./frontend
+                  docker build \
+                  --build-arg REACT_APP_API_URL=${{ secrets.BACKEND_API_URL }} \
+                  -t frontend-image:latest \
+                  ./frontend
+
           - name: Login to ECR
             id: login-ecr
             uses: aws-actions/amazon-ecr-login@v2
@@ -68,3 +72,11 @@ jobs:
           - name: Push Frontend Image
             run: |
                   docker push ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:latest
+
+          - name: Update kubeconfig
+            run: |
+                  aws eks update-kubeconfig --name task-mgmt-cluster --region ap-south-1
+
+          - name: Apply Kubernetes manifests
+            run: |
+                  kubectl apply -f k8s/
