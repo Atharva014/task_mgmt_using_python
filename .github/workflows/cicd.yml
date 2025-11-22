@@ -42,3 +42,11 @@ jobs:
             run: |
                 pwd
                 trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+
+          - name: Build Backend docker Image
+            run: |
+                  docker build -t backend-image:latest ./backend
+
+          - name: Build Frontend docker Image
+            run: |
+                  docker build -t frontend-image:latest ./frontend        
