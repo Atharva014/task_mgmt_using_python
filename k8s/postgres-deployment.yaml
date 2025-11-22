@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres-deployment
-  labels:
-    app: postgres
 spec:
   replicas: 1
   selector:
@@ -14,22 +12,22 @@ spec:
       labels:
         app: postgres
     spec:
+      nodeSelector:
+        topology.kubernetes.io/zone: ap-south-1a   # <<< ADD THIS
       containers:
-        - name: postgres
-          image: postgres:14
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              value: task_mgmt_db
-            - name: POSTGRES_USER
-              value: postgres
-            - name: POSTGRES_PASSWORD
-              value: postgres
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-      volumes:
+      - name: postgres
+        image: postgres:15
+        env:
+        - name: POSTGRES_DB
+          value: taskdb
+        - name: POSTGRES_USER
+          value: taskuser
+        - name: POSTGRES_PASSWORD
+          value: taskpass
+        volumeMounts:
         - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc

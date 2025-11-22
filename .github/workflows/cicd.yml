@@ -49,6 +49,7 @@ jobs:
           - name: Build Frontend docker Image
             run: |
                   docker build \
+                  --no-cache \
                   --build-arg REACT_APP_API_URL=${{ secrets.BACKEND_API_URL }} \
                   -t frontend-image:latest \
                   ./frontend

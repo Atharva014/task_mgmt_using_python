@@ -5,6 +5,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: gp2   # <-- ADD OR FIX THIS
   resources:
     requests:
       storage: 5Gi
