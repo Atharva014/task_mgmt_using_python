@@ -2,7 +2,7 @@ name: CI-CD Pipeline
 on:
     push:
         branches:
-          - main
+          - github-actions-deploy
 jobs:
     build:
         name: Build Project
