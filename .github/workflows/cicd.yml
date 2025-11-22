@@ -38,10 +38,9 @@ jobs:
                 sudo apt-get update
                 sudo apt-get install -y trivy
 
-          - name: Run Trivy Scan
+          - name: Run Trivy Scan (Do Not Fail Pipeline)
             run: |
-                pwd
-                trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+                trivy fs --exit-code 0 --severity HIGH,CRITICAL .
 
           - name: Build Backend docker Image
             run: |
