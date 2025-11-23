@@ -41,7 +41,7 @@ const Signup = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md">
         <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Create Account</h1>
-        <p className="text-center text-gray-600 mb-8">Join TaskFlow today</p>
+        <p className="text-center text-gray-600 mb-8">Join TaskFlow Today</p>
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
