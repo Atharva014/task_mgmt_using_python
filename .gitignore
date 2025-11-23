@@ -28,3 +28,7 @@ dist/
 # System files
 .DS_Store
 Thumbs.db
+
+ebs-csi-policy.json
+iam_policy.json
+iam-policy.json

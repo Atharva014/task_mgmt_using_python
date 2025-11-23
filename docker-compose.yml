@@ -22,6 +22,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: abhise203/taskflow-app:backend  
     container_name: taskmgmt_backend
     restart: always
     ports:
@@ -42,6 +43,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: abhise203/taskflow-app:frontend  
     container_name: taskmgmt_frontend
     restart: always
     ports:
