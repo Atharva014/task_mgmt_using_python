@@ -60,11 +60,11 @@ jobs:
             
           - name: Tag Backend Image
             run: |
-                  docker tag backend-image:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:latest
+                  docker tag backend-image:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:${{ github.sha }}
 
           - name: Tag Frontend Image
             run: |
-                  docker tag frontend-image:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:latest
+                  docker tag frontend-image:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:${{ github.sha }}
 
           - name: Push Backend Image
             run: |
