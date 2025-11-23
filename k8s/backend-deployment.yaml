@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: abhise203/taskflow-app:backend-v1
+          image: 390403867534.dkr.ecr.ap-south-1.amazonaws.com/task-mgmt-backend:latest
           ports:
             - containerPort: 8000
           env:

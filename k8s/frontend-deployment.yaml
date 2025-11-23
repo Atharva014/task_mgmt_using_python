@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: abhise203/taskflow-app:frontend
+          image: 390403867534.dkr.ecr.ap-south-1.amazonaws.com/task-mgmt-frontend:latest
           ports:
             - containerPort: 80
           env:
