@@ -44,14 +44,14 @@ jobs:
 
           - name: Build Backend docker Image
             run: |
-                  docker build -t backend-image:latest ./backend
+                  docker build -t backend-image:${{ github.sha }} ./backend
 
           - name: Build Frontend docker Image
             run: |
                   docker build \
                   --no-cache \
                   --build-arg REACT_APP_API_URL=${{ secrets.BACKEND_API_URL }} \
-                  -t frontend-image:latest \
+                  -t frontend-image:${{ github.sha }} \
                   ./frontend
 
           - name: Login to ECR
@@ -60,23 +60,28 @@ jobs:
             
           - name: Tag Backend Image
             run: |
-                  docker tag backend-image:latest ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:latest
+                  docker tag backend-image:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:latest
 
           - name: Tag Frontend Image
             run: |
-                  docker tag frontend-image:latest ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:latest
+                  docker tag frontend-image:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:latest
 
           - name: Push Backend Image
             run: |
-                  docker push ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:latest
+                  docker push ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:${{ github.sha }}
 
           - name: Push Frontend Image
             run: |
-                  docker push ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:latest
+                  docker push ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:${{ github.sha }}
 
           - name: Update kubeconfig
             run: |
                   aws eks update-kubeconfig --name task-mgmt-cluster --region ap-south-1
+
+          - name: Update image tags in manifests
+            run: |
+                  sed -i "s|{{SHA}}|${{ github.sha }}|g" k8s/backend-deployment.yaml
+                  sed -i "s|{{SHA}}|${{ github.sha }}|g" k8s/frontend-deployment.yaml        
 
           - name: Apply Kubernetes manifests
             run: |

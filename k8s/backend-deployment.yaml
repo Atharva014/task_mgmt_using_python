@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: 390403867534.dkr.ecr.ap-south-1.amazonaws.com/task-mgmt-backend:latest
+          image: 390403867534.dkr.ecr.ap-south-1.amazonaws.com/task-mgmt-backend:{{SHA}}
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
           env:
