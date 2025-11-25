@@ -14,8 +14,6 @@ spec:
       labels:
         app: postgres
     spec:
-      nodeSelector:
-        topology.kubernetes.io/zone: ap-south-1a
       containers:
         - name: postgres
           image: postgres:14
