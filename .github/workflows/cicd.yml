@@ -54,12 +54,6 @@ jobs:
                   -t frontend-image:${{ github.sha }} \
                   ./frontend
            
-          - name: Scan Backend and Frontend Images
-            run: |
-                  trivy image --exit-code 1 --severity CRITICAL,HIGH ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:${{ github.sha }}
-                  trivy image --exit-code 1 --severity CRITICAL,HIGH ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:${{ github.sha }}
-
-
           - name: Login to ECR
             id: login-ecr
             uses: aws-actions/amazon-ecr-login@v2
@@ -72,6 +66,11 @@ jobs:
             run: |
                   docker tag frontend-image:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:${{ github.sha }}
 
+          - name: Scan Backend and Frontend Images
+            run: |
+                  trivy image --exit-code 1 --severity CRITICAL,HIGH ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:${{ github.sha }}
+                  trivy image --exit-code 1 --severity CRITICAL,HIGH ${{ steps.login-ecr.outputs.registry }}/task-mgmt-frontend:${{ github.sha }}
+                  
           - name: Push Backend Image
             run: |
                   docker push ${{ steps.login-ecr.outputs.registry }}/task-mgmt-backend:${{ github.sha }}
@@ -92,6 +91,10 @@ jobs:
           - name: Apply Kubernetes manifests
             run: |
                   kubectl apply -f k8s/
+
+          - name: Run Database Migrations
+            run: |
+                  kubectl exec deploy/backend-deployment -- python manage.py migrate --noinput
 
           - name: Restart Backend Deployment
             run: |
