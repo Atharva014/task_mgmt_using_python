@@ -18,5 +18,12 @@ pipeline{
                 }
             }
         }
+        stage('Sonar Quality Gate Scan'){
+            steps{
+                timeout(time: 2, unit: "MINUTES") {
+                    waitForQualityGate abortPipeline: false
+                }
+            }
+        }
     }
 }
