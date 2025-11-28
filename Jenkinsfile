@@ -13,7 +13,7 @@ pipeline{
         }
         stage('Sonarqube Analysis'){
             steps{
-                withSonarQubeEnv("Sonar"){
+                withSonarQubeEnv("soanr-srv"){
                     sh "$SONAR_HOME/bin/sonar-scanner -Dsonar.projectName=task_mgmt -Dsonar.projectKey=task_mgmt -Dsonar.sources=backend,frontend"
                 }
             }
