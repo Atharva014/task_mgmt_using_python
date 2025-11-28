@@ -27,8 +27,8 @@ pipeline{
         }
         stage('Trivy Scan'){
             steps{
-                trivy fs --format table -o trivy-backend.html --severity HIGH,CRITICAL backend/
-                trivy fs --format table -o trivy-frontend.html --severity HIGH,CRITICAL frontend/
+                sh 'trivy fs --format table -o trivy-backend.html --severity HIGH,CRITICAL backend/'
+                sh 'trivy fs --format table -o trivy-frontend.html --severity HIGH,CRITICAL frontend/'
             }
         }
     }
