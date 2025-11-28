@@ -1,0 +1,13 @@
+pipeline{
+    agent any
+
+    environment
+    }
+    stages{
+        stage('Checkout from Git'){
+             steps{
+                git branch: 'jenkins-deploy', changelog: false, poll: false, url: 'https://github.com/Atharva014/task_mgmt_using_python.git'
+             }
+         }
+    }
+}
