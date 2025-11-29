@@ -20,7 +20,7 @@ terraform {
   }
   backend "s3" {
     region = "ap-south-1"
-    bucket = "value"
+    bucket = "taskflow-eks-setup-bucket"
     key = "dev/terraform.tfstate"
     use_lockfile = true
     encrypt = true
