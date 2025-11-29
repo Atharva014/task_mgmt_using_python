@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: 390403867534.dkr.ecr.ap-south-1.amazonaws.com/task-mgmt-frontend:{{SHA}}
+          image: {{image_name}}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
