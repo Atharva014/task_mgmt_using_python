@@ -47,10 +47,16 @@ module "eks" {
   depends_on = [ module.ecr ]
 }
 
+module "ingress" {
+  source = "./modules/ingress-mod"
+  k8s_manifests_path = "k8s"
+  depends_on = [ module.eks ]
+}
+
 module "k8s-manifests" {
   source = "./modules/k8s-resources"
   k8s_manifests_path = "k8s"
-  depends_on = [ module.eks ]
+  depends_on = [ module.eks, module.ingress ]
   providers = {
     kubernetes = kubernetes
   }

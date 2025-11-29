@@ -1,13 +1,3 @@
-# Backend Service
-resource "kubernetes_manifest" "backend_service" {
-  manifest = yamldecode(file("${path.root}/${var.k8s_manifests_path}/backend-service.yaml"))
-}
-
-# Frontend Service
-resource "kubernetes_manifest" "frontend_service" {
-  manifest = yamldecode(file("${path.root}/${var.k8s_manifests_path}/frontend-service.yaml"))
-}
-
 # Database Setup
 resource "kubernetes_manifest" "postgres_storage_class" {
   manifest = yamldecode(file("${path.root}/${var.k8s_manifests_path}/postgres-storage-class.yaml"))
@@ -53,7 +43,6 @@ resource "kubernetes_manifest" "backend_deployment" {
   depends_on = [
     kubernetes_manifest.configmap,
     kubernetes_manifest.postgres_service,
-    kubernetes_manifest.backend_service
   ]
 }
 
@@ -62,18 +51,5 @@ resource "kubernetes_manifest" "frontend_deployment" {
 
   depends_on = [
     kubernetes_manifest.configmap,
-    kubernetes_manifest.frontend_service
-  ]
-}
-
-# Ingress
-resource "kubernetes_manifest" "ingress" {
-  manifest = yamldecode(file("${path.root}/${var.k8s_manifests_path}/ingress.yaml"))
-
-  depends_on = [
-    kubernetes_manifest.backend_deployment,
-    kubernetes_manifest.frontend_deployment,
-    kubernetes_manifest.backend_service,
-    kubernetes_manifest.frontend_service,
   ]
 }

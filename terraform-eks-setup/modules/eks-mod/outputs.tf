@@ -18,12 +18,6 @@ output "cluster_name" {
   value       = aws_eks_cluster.main.name
 }
 
-output "cluster_certificate_authority" {
-  description = "Base64 encoded certificate data for the cluster"
-  value       = aws_eks_cluster.main.certificate_authority[0].data
-  sensitive   = true
-}
-
 output "oidc_provider_arn" {
   description = "ARN of the OIDC Provider for EKS"
   value       = aws_iam_openid_connect_provider.cluster.arn
