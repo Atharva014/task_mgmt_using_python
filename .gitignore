@@ -34,4 +34,3 @@ Thumbs.db
 **/.terraform.lock.hcl
 **/.terraform/
 **/.terraform.tfstate.lock.info
-**/k8s
