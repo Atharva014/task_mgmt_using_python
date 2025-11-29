@@ -51,9 +51,10 @@ module "eks_addons" {
   source = "./modules/eks-addons"
   cluster_name = var.cluster_name
   region = var.region
-  vpc_id = module.vpc.default_vpc_id
+  vpc_id = module.vpc.vpc_id
   alb_controller_role_arn = module.eks.alb_controller_role_arn
   ebs_csi_controller_role_arn = module.eks.ebs_csi_controller_role_arn
+  depends_on = [ module.eks ]
 }
 
 module "ingress" {
