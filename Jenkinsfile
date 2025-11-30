@@ -125,5 +125,52 @@ pipeline{
                 }
             }
         }
+        stage('Setup Monitoring'){
+            steps{
+                withCredentials([
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-credentials'
+                    ]
+                ]) 
+                {
+                    script {
+                        sh 'aws eks update-kubeconfig --region ap-south-1 --name task-mgmt-cluster'
+                        
+                        dir('monitoring') {
+                            sh 'chmod +x monitoring/install-monitoring.sh'
+                            // Install monitoring stack
+                            sh './install-monitoring.sh'
+                            
+                            // Wait and get URLs
+                            sleep(60)
+                            
+                            def prometheusUrl = sh(
+                                script: "kubectl get svc -n monitoring prometheus-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'",
+                                returnStdout: true
+                            ).trim()
+                            
+                            def grafanaUrl = sh(
+                                script: "kubectl get svc -n monitoring grafana -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'",
+                                returnStdout: true
+                            ).trim()
+                            
+                            echo "Prometheus URL: http://${prometheusUrl}"
+                            echo "Grafana URL: http://${grafanaUrl}"
+                            echo "Grafana Username: admin"
+                            echo "Grafana Password: admin123"
+                        }
+                    }
+                }    
+            }
+        }
+        stage('verify Monitoiring'){
+            steps{
+                sh '''
+                    kubectl get pods -n monitoring
+                    kubectl get svc -n monitoring
+                '''
+            }
+        }
     }
 }

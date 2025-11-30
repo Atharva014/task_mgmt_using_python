@@ -1,0 +1,128 @@
+pipeline{
+    agent any
+    stages{
+        stage('Code Checkout'){
+            steps{
+                git url: "https://github.com/Atharva014/task_mgmt_using_python.git", branch: "jenkins-deploy"
+            }
+        }
+        stage('Terraform Init'){
+            steps{
+                dir('terraform-eks-setup'){
+                    withCredentials([
+                        [
+                            $class: 'AmazonWebServicesCredentialsBinding',
+                            credentialsId: 'aws-credentials'
+                        ]
+                    ])
+                    {
+                        sh 'terraform init'
+                    }
+                }
+            }
+        }
+        stage('Terraform Validate'){
+            steps{
+                dir('terraform-eks-setup'){
+                    withCredentials([
+                        [
+                            $class: 'AmazonWebServicesCredentialsBinding',
+                            credentialsId: 'aws-credentials'
+                        ]
+                    ])
+                    {
+                        sh 'terraform validate'
+                    }
+                }
+            }
+        }
+        stage('Terraform Plan'){
+            steps{
+                dir('terraform-eks-setup'){
+                   withCredentials([
+                        [
+                            $class: 'AmazonWebServicesCredentialsBinding',
+                            credentialsId: 'aws-credentials'
+                        ]
+                    ])
+                    {
+                        sh 'terraform plan -target="module.vpc" -target="module.ecr" -target="module.eks"'
+                    }
+                }
+            }
+        }
+        stage('Terraform Apply'){
+            steps{
+                dir('terraform-eks-setup'){
+                   withCredentials([
+                        [
+                            $class: 'AmazonWebServicesCredentialsBinding',
+                            credentialsId: 'aws-credentials'
+                        ]
+                    ])
+                    {
+                        sh 'terraform apply -target="module.vpc" -target="module.ecr" -target="module.eks" --auto-approve'
+                        sh 'terraform apply -target="module.ingress" --auto-approve'
+                    }
+                }
+            }
+        }
+        stage('Caputuring and Saving infrastructure outputs'){
+            steps{
+                dir('terraform-eks-setup'){
+                   withCredentials([
+                        [
+                            $class: 'AmazonWebServicesCredentialsBinding',
+                            credentialsId: 'aws-credentials'
+                        ]
+                    ])
+                    {
+                        script{
+                            // Get outputs as JSON
+                            def tfOutputJson = sh(
+                                script: 'terraform output -json',
+                                returnStdout: true
+                            ).trim()
+                            
+                            def tfOutputs = readJSON text: tfOutputJson
+                            // Extract values
+                            env.ECR_BACKEND = tfOutputs.backend_repo_url.value
+                            env.ECR_FRONTEND = tfOutputs.frontend_repo_url.value
+                            env.ALB_URL = tfOutputs.alb_dns_name.value
+                            
+                            echo "ECR Backend: ${env.ECR_BACKEND}"
+                            echo "ECR Frontend: ${env.ECR_FRONTEND}"
+                             echo "ALB url: ${env.ALB_URL}"
+                            
+                            writeFile file: 'infra-outputs.properties', text: """
+    ECR_BACKEND=${env.ECR_BACKEND}
+    ECR_FRONTEND=${env.ECR_FRONTEND}
+    ALB_URL=${env.ALB_URL}
+    """
+                            // Archive for downstream jobs
+                            archiveArtifacts artifacts: 'infra-outputs.properties', fingerprint: true
+                        }
+                    }
+                }
+            }
+        }
+        stage('Triggering Application pipeline'){
+            steps{
+                build job: 'task-mgmt-pipeline', wait: false, parameters: [
+                          string(name: 'ECR_BACKEND_REPO', value: env.ECR_BACKEND),
+                          string(name: 'ECR_FRONTEND_REPO', value: env.ECR_FRONTEND),
+                          string(name: 'ALB_URL', value: env.ALB_URL),
+                      ]
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Infrastructure setup completed successfully!'
+            echo "Next: Application deployment pipeline triggered"
+        }
+        failure {
+            echo 'Infrastructure setup failed!'
+        }
+    }
+}
