@@ -10,12 +10,14 @@ kubectl apply -f namespace.yaml
 helm upgrade --install prometheus prometheus-community/prometheus \
   --namespace monitoring \
   --values prometheus-values.yaml \
+  --timeout 10m \
   --wait
 
 # Install Grafana
 helm upgrade --install grafana grafana/grafana \
   --namespace monitoring \
   --values grafana-values.yaml \
+  --timeout 10m \
   --wait
 
 # Get Grafana admin password

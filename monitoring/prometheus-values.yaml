@@ -1,9 +1,11 @@
 alertmanager:
   enabled: true
+  persistentVolume:
+    enabled: false
   
 server:
   persistentVolume:
-    enabled: true
+    enabled: false
     size: 10Gi
     storageClass: ebs-sc
   
