@@ -54,8 +54,57 @@ pipeline{
         }
         stage('Build Docker Images'){
             steps{
-                sh "docker build --build-arg REACT_APP_API_URL=${params.ALB_URL} -t ${params.ECR_BACKEND_REPO}:${IMAGE_TAG} ./backend"
-                sh "docker build -t ${params.ECR_FRONTEND_REPO}:${IMAGE_TAG} ./frontend"
+                sh "docker build -t ${params.ECR_BACKEND_REPO}:${env.IMAGE_TAG} ./backend"
+                sh "docker build --build-arg REACT_APP_API_URL=http://${params.ALB_URL} -t ${params.ECR_FRONTEND_REPO}:${env.IMAGE_TAG} ./frontend"
+            }
+        }
+        stage('Trivy Images scan'){
+            steps{
+                sh """
+                    trivy image --exit-code 0 --severity CRITICAL,HIGH ${params.ECR_BACKEND_REPO}:${env.IMAGE_TAG}
+                    trivy image --exit-code 0 --severity CRITICAL,HIGH ${params.ECR_FRONTEND_REPO}:${env.IMAGE_TAG}
+                """
+            }
+        }
+        stage('Push Docker Images'){
+            steps{
+                withCredentials([
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-credentials'
+                    ]
+                ]) {
+                    script {
+                        // Login to ECR
+                        sh """
+                            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${params.ECR_BACKEND_REPO.split('/')[0]}
+                        """
+                        
+                        // Push images
+                        sh "docker push ${params.ECR_BACKEND_REPO}:${env.IMAGE_TAG}"
+                        sh "docker push ${params.ECR_FRONTEND_REPO}:${env.IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+        stage('Apply k8s manifests'){
+            steps{
+                dir('terraform-eks-setup'){
+                    sh """
+                    sed -i 's|{{image_name}}|${params.ECR_BACKEND_REPO}:${env.IMAGE_TAG}|g' k8s/backend-deployment.yaml
+                    sed -i 's|{{image_name}}|${params.ECR_FRONTEND_REPO}:${env.IMAGE_TAG}|g' k8s/frontend-deployment.yaml
+                    """
+                    withCredentials([
+                        [
+                            $class: 'AmazonWebServicesCredentialsBinding',
+                            credentialsId: 'aws-credentials'
+                        ]
+                    ])
+                    {
+                        sh 'terraform init'
+                        sh 'terraform apply -target="module.k8s-manifests" --auto-approve'
+                    }
+                }
             }
         }
     }
