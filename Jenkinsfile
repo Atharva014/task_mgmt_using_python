@@ -5,9 +5,9 @@ pipeline{
         SONAR_HOME = tool "sonar"
     }
     parameters {
-        string(name: 'ECR_BACKEND_REPO', defaultValue: '', description: 'Backend ECR Repository URL')
-        string(name: 'ECR_FRONTEND_REPO', defaultValue: '', description: 'Frontend ECR Repository URL')
-        string(name: 'ALB_URL', defaultValue: '', description: 'ALB URL')
+        string(name: 'ECR_BACKEND_REPO', defaultValue: '390403867534.dkr.ecr.ap-south-1.amazonaws.com/task-mgmt-backend', description: 'Backend ECR Repository URL')
+        string(name: 'ECR_FRONTEND_REPO', defaultValue: '390403867534.dkr.ecr.ap-south-1.amazonaws.com/task-mgmt-frontend', description: 'Frontend ECR Repository URL')
+        string(name: 'ALB_URL', defaultValue: 'k8s-default-taskappi-08814a3a18-662897624.ap-south-1.elb.amazonaws.com', description: 'ALB URL')
     }
     stages{
         stage('Env Var'){
@@ -134,17 +134,20 @@ pipeline{
                     ]
                 ]) 
                 {
-                    script {
+                    script{
                         sh 'aws eks update-kubeconfig --region ap-south-1 --name task-mgmt-cluster'
-                        
-                        dir('monitoring') {
-                            sh 'chmod +x monitoring/install-monitoring.sh'
+                        dir('monitoring'){
+                            sh"""
+                            chmod +x install-monitoring.sh
+                            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                            helm repo add grafana https://grafana.github.io/helm-charts
+                            helm repo update
+                            """
                             // Install monitoring stack
                             sh './install-monitoring.sh'
+                            sh 'echo "Installed."'
                             
-                            // Wait and get URLs
                             sleep(60)
-                            
                             def prometheusUrl = sh(
                                 script: "kubectl get svc -n monitoring prometheus-server -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'",
                                 returnStdout: true
@@ -162,14 +165,6 @@ pipeline{
                         }
                     }
                 }    
-            }
-        }
-        stage('verify Monitoiring'){
-            steps{
-                sh '''
-                    kubectl get pods -n monitoring
-                    kubectl get svc -n monitoring
-                '''
             }
         }
     }
