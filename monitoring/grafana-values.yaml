@@ -1,12 +1,10 @@
 persistence:
   enabled: false
-  size: 5Gi
-  storageClass: ebs-sc
 
 adminPassword: admin123
 
 service:
-  type: LoadBalancer
+  type: ClusterIP  # Changed from LoadBalancer
   
 datasources:
   datasources.yaml:

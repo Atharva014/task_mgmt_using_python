@@ -6,11 +6,9 @@ alertmanager:
 server:
   persistentVolume:
     enabled: false
-    size: 10Gi
-    storageClass: ebs-sc
   
   service:
-    type: LoadBalancer
+    type: ClusterIP  # Changed from LoadBalancer
     
 pushgateway:
   enabled: false
