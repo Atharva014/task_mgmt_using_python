@@ -107,5 +107,23 @@ pipeline{
                 }
             }
         }
+        stage('Run Database migrations'){
+            steps{
+                withCredentials([
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-credentials'
+                    ]
+                ])
+                {
+                    script {
+                        sh 'aws eks update-kubeconfig --region ap-south-1 --name task-mgmt-cluster'
+                        sh 'kubectl wait --for=condition=available --timeout=300s deployment/backend-deployment'
+                        sh 'kubectl exec deploy/backend-deployment -- python manage.py migrate --noinput'
+                        sh 'echo "Migration applied"'
+                    }
+                }
+            }
+        }
     }
 }
