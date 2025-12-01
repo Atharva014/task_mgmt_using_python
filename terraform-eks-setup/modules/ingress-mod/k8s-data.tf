@@ -5,5 +5,4 @@ data "kubernetes_ingress_v1" "main" {
     namespace = try(kubernetes_manifest.backend_ingress.manifest.metadata.namespace, "default")
   }
 
-  depends_on = [kubernetes_manifest.ingress]
 }
